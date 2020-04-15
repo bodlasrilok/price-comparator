@@ -14,8 +14,7 @@ import (
 	"math"
 )
 
-func GetProductsByTitle(productTitle, excludeProductID string, limit, offset int) (result []modelVasProduct.Product, total int64, err error) {
-	ctx := context.Background()
+func GetProductsByTitle(ctx context.Context, productTitle, excludeProductID string, limit, offset int) (result []modelVasProduct.Product, total int64, err error) {
 	esClient, err := elastic.NewClient(elastic.SetURL("http://172.21.248.170:9200"))
 	if err != nil {
 		fmt.Println("error is ", err)
@@ -71,16 +70,13 @@ func ClusterByCategory(list []modelVasProduct.Product, product modelProductCrawl
 		for _, pr := range list {
 			if pr.CategoryL3ID == k {
 				count = count + 1
-				fmt.Println("count is : ", count, "for cat id : ", k)
 				prices = append(prices, pr.Price)
 			}
 		}
 
 		avgPrices, _ := stats.Mean(prices)
 		diff := math.Abs(avgPrices - product.Price)
-		log.Infoln("averange prices ", avgPrices, "differnce in math abs ", diff, "mindifff", float64(minDiff), "for cat id : ", k)
 		if avgPrices >= float64(min) && avgPrices <= float64(max) && diff <= minDiff {
-			log.Infoln("In success condition for cat id ,", k)
 			minDiff = diff
 			relevantCat = append(relevantCat, k)
 		}

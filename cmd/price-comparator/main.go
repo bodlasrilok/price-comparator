@@ -1,90 +1,124 @@
 package main
 
 import (
+	"bufio"
 	"context"
+	"encoding/csv"
+	"github.com/tokopedia/price-comparator/internal/model"
 	modelProductCrawl "github.com/tokopedia/price-comparator/internal/model/productcrawl"
-	usecase "github.com/tokopedia/price-comparator/internal/usecase"
+	"github.com/tokopedia/price-comparator/internal/usecase"
+	"io"
+	"log"
+	"os"
+	"strconv"
 )
 
- //
-//func getQuartileForSolds(sortedProduct []modelVasProduct.Product) model.Quartile {
-//	numberOfProductPer4 := (len(sortedProduct)) / 4
-//	return model.Quartile{
-//		Q1: float64(sortedProduct[numberOfProductPer4].Sold.SoldCountLast30Days),
-//		Q2: float64(sortedProduct[numberOfProductPer4*2].Sold.SoldCountLast30Days),
-//		Q3: float64(sortedProduct[numberOfProductPer4*3].Sold.SoldCountLast30Days),
-//		Q4: float64(sortedProduct[(numberOfProductPer4*4)-1].Sold.SoldCountLast30Days),
-//	}
-//}
-//
-//func calculatePrice2(products []modelVasProduct.Product, base, exponentFactor float64) (suggestedPrice []float64) {
-//	//sort the products on no of items solds ascending
-//	sort.Slice(products, func(i, j int) bool {
-//		return products[i].Sold.SoldCountLast30Days < products[j].Sold.SoldCountLast30Days
-//	})
-//
-//	q := getQuartileForSolds(products)
-//	l := getOutlierLimit(q)
-//	solds := []float64{}
-//	weight := []float64{}
-//	fmt.Println(l.Upper, l.Lower)
-//	for _, product := range products {
-//		fmt.Println("product sales are...", product.Sold.SoldCountLast30Days)
-//		if float64(product.Sold.SoldCountLast30Days) < l.Upper && float64(product.Sold.SoldCountLast30Days) > l.Lower {
-//			solds = append(solds, product.Price)
-//			factor := math.Pow(base, (float64(len(products)) - (float64(product.Index) * exponentFactor)))
-//			weight = append(weight, factor)
-//		}
-//	}
-//	mean := stat.Mean(solds, weight)
-//	std := stat.StdDev(solds, weight)
-//	suggestedPrice = append(suggestedPrice, mean+(std))
-//	suggestedPrice = append(suggestedPrice, mean-(std))
-//	return
-//
-//}
-
 func main() {
-	productCrawl := modelProductCrawl.ProductCrawl{}
 
-	//productCrawl.ProductID = 6405181
-	//productCrawl.RequestID = "ps_200406184513347804"
-	//productCrawl.NormalizedName = "logitech f310 gamepad"
-	//productCrawl.CategoryL1ID = 2099
-	//productCrawl.CategoryL2ID = 3818
-	//productCrawl.CategoryL3ID = 3833
-	//productCrawl.ProcessStep = 3
-	//productCrawl.FilterTemplateID = 2
-	//productCrawl.CreateBy = -1
-	//productCrawl.Status = 1
-	//productCrawl.Price = 340000
-	//productCrawl.ProductURL = "https://www.tokopedia.com/shopvenus/logitech-f310-gamepad"
-	//productCrawl.UpdateBy =	-1
-	//productCrawl.DiscountedPrice = 0
-	//productCrawl.FullCount = 3
-	//productCrawl.ShopID = 200
-	//productCrawl.ShopID = 0
+	inputProductHistoryFile, _ := os.Open("input/product-history.csv")
+	history := csv.NewReader(bufio.NewReader(inputProductHistoryFile))
+	productsData := []model.HistoryData{}
 
-	productCrawl.ProductID = 277881203
-	productCrawl.RequestID = "ps_200406184513347804"
-	productCrawl.NormalizedName = "elektrik treadmill tl 288 total gym"
-	productCrawl.CategoryL1ID = 2099
-	productCrawl.CategoryL2ID = 3818
-	productCrawl.CategoryL3ID = 3833
-	productCrawl.ProcessStep = 3
-	productCrawl.FilterTemplateID = 2
-	productCrawl.CreateBy = -1
-	productCrawl.Status = 1
-	productCrawl.Price = 5300000
-	productCrawl.ProductURL = "https://www.tokopedia.com/shopvenus/logitech-f310-gamepad"
-	productCrawl.UpdateBy = -1
-	productCrawl.DiscountedPrice = 0
-	productCrawl.FullCount = 3
-	productCrawl.ShopID = 200
-	productCrawl.ShopID = 0
+	dataMap := make(map[string][]model.HistoryData)
+
+	inputFile, _ := os.Open("input/inputs.csv")
+	reader := csv.NewReader(bufio.NewReader(inputFile))
+	products := []modelProductCrawl.ProductCrawl{}
+
+	for {
+		line, error := reader.Read()
+		if error == io.EOF {
+			break
+		} else if error != nil {
+			log.Fatal(error)
+		}
+		id, _ := strconv.ParseInt(line[1], 10, 64)
+		l1, _ := strconv.ParseInt(line[3], 10, 64)
+		l2, _ := strconv.ParseInt(line[4], 10, 64)
+		l3, _ := strconv.ParseInt(line[5], 10, 64)
+		ps, _ := strconv.Atoi(line[6])
+		price, _ := strconv.ParseFloat(line[11], 64)
+		shopId, _ := strconv.ParseInt(line[27], 10, 64)
+
+		products = append(products, modelProductCrawl.ProductCrawl{
+			ProductID:      id,
+			CategoryL1ID:   l1,
+			CategoryL2ID:   l2,
+			CategoryL3ID:   l3,
+			ProcessStep:    ps,
+			Price:          price,
+			ProductURL:     line[12],
+			RequestID:      line[13],
+			NormalizedName: line[15],
+			ShopID:         shopId,
+		})
+	}
+
+	for {
+		line, error := history.Read()
+		if error == io.EOF {
+			break
+		} else if error != nil {
+			log.Fatal(error)
+		}
+		price, _ := strconv.ParseFloat(line[1], 64)
+		stock, _ := strconv.ParseInt(line[2], 10, 64)
+		sold, _ := strconv.ParseInt(line[3], 10, 64)
+		view, _ := strconv.ParseInt(line[4], 10, 64)
+
+		productsData = append(productsData, model.HistoryData{
+			ProductID: line[0],
+			Price:     price,
+			Stock:     stock,
+			Sold:      sold,
+			View:      view,
+		})
+	}
+
+	for _, data := range productsData {
+		dataMap[data.ProductID] = append(dataMap[data.ProductID], data)
+	}
 
 	ctx := context.Background()
 
-	usecase.PrintPriceSuggestions(ctx, productCrawl)
+	usecase.PrintPriceSuggestions(ctx, products[1], dataMap)
+
+	//usecase.PrintPriceSuggestions(ctx, products[7])
+
+	//output := []*model.Output{}
+	//
+	//for _, product := range products {
+	//	p1, p2, p3 := usecase.PrintPriceSuggestions(ctx, product)
+	//
+	//	output = append(output, &model.Output{
+	//		ProductID:      product.ProductID,
+	//		NormalizedName: product.NormalizedName,
+	//		Price:          product.Price,
+	//		Price1:         p1,
+	//		Price2:         p2,
+	//		Price3:         p3,
+	//	})
+	//}
+	//
+	//clientsFile, err := os.OpenFile("output/results.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+	//if err != nil {
+	//	panic(err)
+	//}
+	//defer clientsFile.Close()
+	//
+	//if err := gocsv.UnmarshalFile(clientsFile, &output); err != nil { // Load clients from file
+	//	panic(err)
+	//}
+	//
+	//if _, err := clientsFile.Seek(0, 0); err != nil { // Go to the start of the file
+	//	panic(err)
+	//}
+	//
+	//csvContent, err := gocsv.MarshalString(&output) // Get all clients as CSV string
+	//
+	//if err != nil {
+	//	panic(err)
+	//}
+	//fmt.Println(csvContent)
 
 }

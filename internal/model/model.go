@@ -20,3 +20,20 @@ type LimitForSolds struct {
 	Upper int64
 	Lower int64
 }
+type HistoryData struct {
+	ProductID string  `json:"product_id" db:"product_id"`
+	Price     float64 `json:"price" db:"price"`
+	Stock     int64   `json:"stock" db:"stock"`
+	Sold      int64   `json:"sold" db:"sold"`
+	View      int64   `json:"view" db:"view"`
+	CNI       float64
+}
+
+type Output struct {
+	ProductID      int64   `csv:"product_id" db:"product_id"`
+	NormalizedName string  `csv:"normalized_name" db:"normalized_name"`
+	Price          float64 `csv:"price" db:"normalized_name"`
+	Price1         float64 `csv:"price1" db:"price"`
+	Price2         float64 `csv:"price2" db:"price"`
+	Price3         float64 `csv:"price3" db:"price"`
+}

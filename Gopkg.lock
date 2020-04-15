@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:22858c734b4f842ca45244680e2377ac50fa17da55010e553368e0eaed221ef1"
+  name = "github.com/gocarina/gocsv"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "46266ca37bd38a63bc2844e3aeb7ec72a2e998fa"
+
+[[projects]]
   digest = "1:f185feea652cdd12ed1683601cfeffd09c081995fc8140de046d8910709ac3dc"
   name = "github.com/mailru/easyjson"
   packages = [
@@ -168,6 +176,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/gocarina/gocsv",
     "github.com/montanaflynn/stats",
     "github.com/tokopedia/tdk/go/log",
     "github.com/tokopedia/tdk/go/tracer",
