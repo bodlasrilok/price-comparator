@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/csv"
+	"github.com/gocarina/gocsv"
 	"github.com/tokopedia/price-comparator/internal/model"
 	modelProductCrawl "github.com/tokopedia/price-comparator/internal/model/productcrawl"
 	"github.com/tokopedia/price-comparator/internal/usecase"
@@ -81,44 +82,45 @@ func main() {
 
 	ctx := context.Background()
 
-	usecase.PrintPriceSuggestions(ctx, products[1], dataMap)
+	//usecase.PrintPriceSuggestions(ctx, products[1], dataMap)
 
 	//usecase.PrintPriceSuggestions(ctx, products[7])
 
-	//output := []*model.Output{}
-	//
-	//for _, product := range products {
-	//	p1, p2, p3 := usecase.PrintPriceSuggestions(ctx, product)
-	//
-	//	output = append(output, &model.Output{
-	//		ProductID:      product.ProductID,
-	//		NormalizedName: product.NormalizedName,
-	//		Price:          product.Price,
-	//		Price1:         p1,
-	//		Price2:         p2,
-	//		Price3:         p3,
-	//	})
-	//}
-	//
-	//clientsFile, err := os.OpenFile("output/results.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer clientsFile.Close()
-	//
-	//if err := gocsv.UnmarshalFile(clientsFile, &output); err != nil { // Load clients from file
-	//	panic(err)
-	//}
-	//
-	//if _, err := clientsFile.Seek(0, 0); err != nil { // Go to the start of the file
-	//	panic(err)
-	//}
-	//
-	//csvContent, err := gocsv.MarshalString(&output) // Get all clients as CSV string
-	//
-	//if err != nil {
-	//	panic(err)
-	//}
-	//fmt.Println(csvContent)
+	output := []*model.Output{}
+
+	for _, product := range products {
+		p1, p2, p3, p4 := usecase.PrintPriceSuggestions(ctx, product, dataMap)
+
+		output = append(output, &model.Output{
+			ProductID:      product.ProductID,
+			NormalizedName: product.NormalizedName,
+			Price:          product.Price,
+			Price1:         p1,
+			Price2:         p2,
+			Price3:         p3,
+			Price4:         p4,
+		})
+	}
+
+	clientsFile, err := os.OpenFile("output/results.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	defer clientsFile.Close()
+
+	if err := gocsv.UnmarshalFile(clientsFile, &output); err != nil { // Load clients from file
+		panic(err)
+	}
+
+	if _, err := clientsFile.Seek(0, 0); err != nil { // Go to the start of the file
+		panic(err)
+	}
+
+	csvContent, err := gocsv.MarshalString(&output) // Get all clients as CSV string
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(csvContent)
 
 }

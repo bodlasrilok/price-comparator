@@ -14,7 +14,7 @@ import (
 	"sort"
 )
 
-func PrintPriceSuggestions(ctx context.Context, productCrawl modelProductCrawl.ProductCrawl, data map[string][]model.HistoryData) (price1, price2, price3 float64) {
+func PrintPriceSuggestions(ctx context.Context, productCrawl modelProductCrawl.ProductCrawl, data map[string][]model.HistoryData) (price1, price2, price3, price4 float64) {
 	products, _, _ := repository.GetProductsByTitle(ctx, productCrawl.NormalizedName, "TKPD277881203", 5000, 0)
 	filteredProducts := products
 	filteredProducts, err := repository.ClusterByCategory(products, productCrawl)
@@ -62,6 +62,7 @@ func PrintPriceSuggestions(ctx context.Context, productCrawl modelProductCrawl.P
 	suggestedPrice4 := calculatePrice4(filteredProducts, 2, 0.1, data)
 	productCrawl.PriceMax = suggestedPrice4[0]
 	productCrawl.PriceMin = suggestedPrice4[1]
+	price4 = (productCrawl.PriceMax + productCrawl.PriceMin) / 2
 	log.Infoln("Min and max areee....", productCrawl.PriceMin, productCrawl.PriceMax)
 	log.Infoln("Suggested price using formula 4 is: ", (productCrawl.PriceMax+productCrawl.PriceMin)/2, "for products id is: ", productCrawl.ProductID)
 	return
