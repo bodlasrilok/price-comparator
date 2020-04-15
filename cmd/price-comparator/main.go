@@ -88,7 +88,7 @@ func main() {
 	//output := []*model.Output{}
 	//
 	//for _, product := range products {
-	//	p1, p2, p3 := usecase.PrintPriceSuggestions(ctx, product)
+	//	p1, p2, p3, p4 := usecase.PrintPriceSuggestions(ctx, product, dataMap)
 	//
 	//	output = append(output, &model.Output{
 	//		ProductID:      product.ProductID,
@@ -97,6 +97,7 @@ func main() {
 	//		Price1:         p1,
 	//		Price2:         p2,
 	//		Price3:         p3,
+	//		Price4:         p4,
 	//	})
 	//}
 	//

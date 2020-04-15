@@ -33,7 +33,8 @@ type Output struct {
 	ProductID      int64   `csv:"product_id" db:"product_id"`
 	NormalizedName string  `csv:"normalized_name" db:"normalized_name"`
 	Price          float64 `csv:"price" db:"normalized_name"`
-	Price1         float64 `csv:"price1" db:"price"`
-	Price2         float64 `csv:"price2" db:"price"`
-	Price3         float64 `csv:"price3" db:"price"`
+	Price1         float64 `csv:"price1" db:"price1"`
+	Price2         float64 `csv:"price2" db:"price2"`
+	Price3         float64 `csv:"price3" db:"price3"`
+	Price4         float64 `csv:"price4" db:"price4"`
 }
