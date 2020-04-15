@@ -26,7 +26,7 @@ func PrintPriceSuggestions(ctx context.Context, productCrawl modelProductCrawl.P
 		repository.ForceActionDone(ctx, fmt.Sprintf("force quiting", len(products)), productCrawl)
 	}
 	productCrawl.CalculatedPrices = commons.GetBasicStatistic(filteredProducts)
-	//
+
 	//var ran int
 	//if len(filteredProducts) > 14 {
 	//	ran = 14
@@ -218,9 +218,8 @@ func calculatePrice3(products []modelVasProduct.Product, base, exponentFactor fl
 
 func calculatePrice4(products []modelVasProduct.Product, base, exponentFactor float64, data map[string][]model.HistoryData) (suggestedPrice []float64) {
 
-	fmt.Println("datamap is ", data["TKPD710539777"])
-
 	//Carries list of products from history
+	log.Println("in formula 4...")
 	productsList := []model.HistoryData{}
 	for _, product := range products {
 		for _, dataChunk := range data[product.ProductID] {
@@ -235,6 +234,12 @@ func calculatePrice4(products []modelVasProduct.Product, base, exponentFactor fl
 		}
 	}
 
+	log.Println("product list is ", productsList)
+
+	if len(productsList) <= 0 {
+		suggestedPrice = append(suggestedPrice, 0)
+		suggestedPrice = append(suggestedPrice, 0)
+	}
 	//sort the products on price ascending
 	sort.Slice(productsList, func(i, j int) bool {
 		return productsList[i].CNI < productsList[j].CNI
@@ -251,15 +256,18 @@ func calculatePrice4(products []modelVasProduct.Product, base, exponentFactor fl
 		count = count + 1
 	}
 
-	num = num * (float64(count) / 10) / float64(count)
-	den = den + (float64(count)/10)/float64(count)
+	if count > 0 {
+		num = num * (float64(count) / 10) / float64(count)
+		den = den + (float64(count)/10)/float64(count)
+	}
 	count = count + 1
 	for count < len(productsList) {
 		num = num + productsList[count].Price * productsList[count].CNI
 		den = den + productsList[count].CNI
+		count = count + 1
 	}
 
-	if den == 0 {
+	if (den == 0) || (num == 0) {
 		suggestedPrice = append(suggestedPrice, 0)
 		suggestedPrice = append(suggestedPrice, 0)
 	} else {
