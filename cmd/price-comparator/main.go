@@ -10,6 +10,7 @@ import (
 	"github.com/tokopedia/price-comparator/internal/usecase"
 	"io"
 	"log"
+	"fmt"
 	"os"
 	"strconv"
 )
